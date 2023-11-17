@@ -2,9 +2,9 @@
 POC for CVE 2023 41320 on GLPI
 
 
-| Vulnerability | Condition	| Score *CVSS* |
-| ------|-----|------|
-| SQL Injection | Authenticated User | 8.1 |
+| Vulnerability | Condition	| Score *CVSS* | Vulnerable version |
+| ------|-----|------|------|
+| SQL Injection | Authenticated User | 8.1 | 10.0.0 $\leq$ **Version** $\leq$ 10.0.9 |
 
 Impact:
  - **SQL Injection** in an update clause (be careful, do not forget the "**WHERE**" :smile:)
