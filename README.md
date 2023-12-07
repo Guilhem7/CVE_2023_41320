@@ -7,7 +7,7 @@ POC for CVE 2023 41320 on GLPI
 | SQL Injection | Authenticated User | 8.1 | 10.0.0 $\leq$ **Version** $\leq$ 10.0.9 |
 
 Impact:
- - **SQL Injection** in an update clause (be careful, do not forget the "**WHERE**" :smile:)
+ - **SQL Injection** in an update clause (be careful, do not forget the "**WHERE**" thanks Issam for the test :smile:)
  - **Account Takeover** (or privesc on the webapp)
  - **Remote Code Execution** (in some cases, uses the check module to verify)
 
