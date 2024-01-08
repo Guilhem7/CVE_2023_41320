@@ -134,7 +134,7 @@ class Printer:
 '  '--'  ||  '--.|  | --' |  |    \\   --. /  /.  \\ | '-' ' 
  `------' `-----'`--'     `--'     `----''--'  '--'|  |-'  
                                                    `--'
-    CVE-2023-41320 by Guilhem RIOUX (\x1b[93m@jrjgjk\x1b[0m) for glpi < 10.1.0                                    
+    CVE-2023-41320 by Guilhem RIOUX (\x1b[93m@jrjgjk\x1b[0m) for glpi <= 10.0.9                                   
             """)
 
 class Exploit:
